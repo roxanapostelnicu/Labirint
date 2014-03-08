@@ -1,0 +1,47 @@
+Projet-Systèmes d’Exploitation
+Equipe : GLODEANU Georgiana
+     NANU Elena 
+     POSTELNICU Roxana
+     VLADU Ionut
+Groupe : 1220F
+
+Thème : Labyrinthe
+Link github : https://github.com/roxanapostelnicu/Labirint
+Analyse:
+Le problème bien défini 
+
+Le problème de ce jeu est de parcourir le labyrinthe afin de pouvoir  arriver du point de START(A) au point de FINISH(B), en choisissant la voie la plus convenable, et sans pénétrer les « murs » du labyrinthe.
+
+     Les règles (la logique) du jeu 
+Le labyrinthe est composé de chemins et des « murs », qui séparent les voies et qui constituent, en même temps, de pièges pour le joueur. Tout d’abord, on doit essayer de choisir la voie la plus convenable. 
+Le contour qui entour les voient doivent être très bien défini pour le bon fonctionnement du jeu.    
+La voie est automatiquement générée  par le programme, mais on essaye de trouver tous les voies possibles. 
+
+
+
+
+Utilisations 
+
+En général, le jeu labyrinthe est utilisé pour aider les enfants à développer leur capacité d’observation et à devenir plus rapides. Dans notre cas, on essaye de créer un programme qui génère tous les vois possibles afin d’arriver du point A au point B.
+				
+
+
+Technique et solution :
+
+Pour créer le labyrinthe, on a utilise un chaine de caractère qui constituent une matrice avec n’importe quel nombre de lignes et de colonnes, délimite par un contour.  Le programme cherche chaque voie disponible pour trouver la solution. 
+On a déclare un tuple avec un symbole pour chaque composant du labyrinthe : 
+•	Espace pour voie libre ;
+•	# pour les murs ;
+•	A pour le point de start ;
+•	B pour le point de finish ;
+•	Point pour une voie parcouru, mais pas bonne ;
+•	Egal pour la bonne voie.
+         	On a déclare une méthode « solve » qui a 5 paramètres :
+	le premier -maze qui prend une liste de caractère du labyrinthe ;
+	le deuxième –posx qui prend la position de x ;
+	le troisième –posy qui  prend la position de y ;
+	les derniers  - sizex et sizey qui représentent les dimensions de la matrice.
+Cette méthode vérifie si les éléments de la matrice sont déjà « SEEN » ou pas, en refaisant le chemin si elle trouve des murs. Elle affiche le chemin propre jusqu’au point de FINISH. 
+Dans la méthode « main », on attribue au paramètre maze une liste qui contient chaque élément du chaine de caractère déclaré dans la matrice. 
+La solution du ce programme représente de trouver la voie qui est marque par le signe « = ».
+Dans le cas ou on n’a pas un chemin entres les points A et B, le programme ne va pas afficher que des points, ce qui signifie qu’il n’y a pas une voie valide. 
