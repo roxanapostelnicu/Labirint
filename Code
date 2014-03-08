@@ -1,0 +1,68 @@
+NONE, WALL, START, FINISH, SEEN, GOOD = tuple(' #AB.=')
+
+""" The touple assigns to its elements their signification, such as:
+" " (blank space) = NONE, "#" = WALL, "A" = START, "B" = FINISH,
+"." = SEEN, "=" = GOOD """
+
+LABYRINTHE = """
+###############
+A #     #     #
+# # ### ##### #
+# # #       # #
+# #   ### # # #
+# # # #   # # #
+#   # # # # # #
+##### # # # # #
+#     # # #   B
+###############
+"""
+
+def solve(maze, posx, posy, sizex, sizey):
+    found = 0
+    
+    
+    """ WE HAVE A solve FUNCTION WHICH HAS AS PARAMETERS:
+        THE MAZE, THE POSITIONS OF x AND y AND THEIR SIZES.        
+        WE INITIALIZE THE VARIABLE found WITH 0,
+        WHICH MEANS THAT WE ARE AT THE BEGGINING OF OUR JOURNEY :) """
+    
+        
+    if 0 <= posx < sizex and 0 <= posy < sizey:     #FOR POSITIVE VALUES WE VERIFY 
+        if maze[posy][posx] in (NONE, START):
+            if maze[posy][posx] == NONE:
+                maze[posy][posx] = SEEN
+
+                """ WE VERIFY IF THE ELEMENT OF THE MATRIX IS A BLANK SPACE NEAR THE START POINT;
+                IF SO, WE MARK IT AS SEEN. AFTER THAT WE VERIFY EACH POSITION THAT'S UP/DOWN/LEFT OR RIGHT
+                COMPARING TO THE REFFERENCE POINT WHICH MAY BE LOCATED IN AN INTERSECTION """
+                
+            if (solve(maze, posx, posy+1, sizex, sizey) or
+                solve(maze, posx, posy-1, sizex, sizey) or
+                solve(maze, posx-1, posy, sizex, sizey) or
+                solve(maze, posx+1, posy, sizex, sizey)) :
+
+                
+                if maze[posy][posx] == SEEN:
+                    maze[posy][posx] = GOOD
+                found = 1
+        elif maze[posy][posx] == FINISH:
+            found = 1
+    return found
+
+
+""" IF THE WE RETURN AND WE FIND A POINT THAT HAS BEEN ALREADY SEEN,
+WE MARK IT AS GOOD, AND OUR VARIABLE found BECOMES TRUE.
+IF WE ARRIVE TO THE FINISH POINT, WE RETURN THE VARIABLE found, WHICH IS TRUE. """
+
+
+def main():
+    maze = [list(x) for x in LABYRINTHE.splitlines() if x]
+    solve(maze, 1, 1, len(maze[1]), len(maze))      # x AND y ARE THE COORDINATES OF DEPART, WHICH ARE NEAR THE POINT A
+    for line in maze:
+        print "".join(line)
+
+        """ THE main FUNCTION ASSIGNS TO THE PARAMETER maze EACH ELEMENT OF THE LIST
+            BY SPLITTING THE LINES OF THE TRIPLE QUOTED STRING, NAMED LABYRINTHE """
+
+if __name__ == "__main__":      # WE INITIALIZE THE CONSTRUCTOR WITH main IN ORDER TO SOLVE THE MAZE
+    main()
