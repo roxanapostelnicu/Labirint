@@ -17,47 +17,81 @@ A #     #     #
 ###############
 """
 
-def solve(maze, posx, posy, sizex, sizey):
-    found = 0
-    
-    
-    """ WE HAVE A solve FUNCTION WHICH HAS AS PARAMETERS:
+def get_lock(posx, posy):
+    if not posx in locks:
+        locks[posx] = dict()
+    if not posy in locks[posx]:
+        locks[posx][posy] = threading.Lock()
+    return locks[posx][posy]
+
+
+class Solver(threading.Thread):
+    def __init__(self, maze, posx, posy, sizex, sizey):
+        threading.Thread.__init__(self)
+        self.maze = maze
+        self.posx = posx
+        self.posy = posy
+        self.sizex = sizex
+        self.sizey = sizey
+        self.found = 0
+        
+        """ WE HAVE A Solver CLASS CONTAINING A CONSTRUCTOR WITH THE PARAMETERS:
         THE MAZE, THE POSITIONS OF x AND y AND THEIR SIZES.        
         WE INITIALIZE THE VARIABLE found WITH 0,
         WHICH MEANS THAT WE ARE AT THE BEGGINING OF OUR JOURNEY :) """
-    
         
-    if 0 <= posx < sizex and 0 <= posy < sizey:     #FOR POSITIVE VALUES WE VERIFY 
-        if maze[posy][posx] in (NONE, START):
-            if maze[posy][posx] == NONE:
-                maze[posy][posx] = SEEN
+    def run(self):
+        lock = get_lock(self.posx, self.posy)
+        if not lock.acquire(False): return    #make sure only 1 thread will work on this area
+        
+        if 0 <= self.posx < self.sizex and 0 <= self.posy < self.sizey:     #FOR POSITIVE VALUES WE VERIFY 
+            if self.maze[self.posy][self.posx] in (NONE, START):
+                if self.maze[self.posy][self.posx] == NONE:
+                    self.maze[self.posy][self.posx] = SEEN
 
-                """ WE VERIFY IF THE ELEMENT OF THE MATRIX IS A BLANK SPACE NEAR THE START POINT;
+                sub_solver1 = Solver(self.maze, self.posx, self.posy+1, self.sizex, self.sizey)
+                sub_solver1.start()
+                sub_solver2 = Solver(self.maze, self.posx, self.posy-1, self.sizex, self.sizey)
+                sub_solver2.start()
+                sub_solver3 = Solver(self.maze, self.posx-1, self.posy, self.sizex, self.sizey)
+                sub_solver3.start()
+                sub_solver4 = Solver(self.maze, self.posx+1, self.posy, self.sizex, self.sizey)
+                sub_solver4.start()
+                
+                
+                
+                """ WE VERIFY (BY SENDING THREADS) IF THE ELEMENT OF THE MATRIX IS A BLANK SPACE NEAR THE START POINT;
                 IF SO, WE MARK IT AS SEEN. AFTER THAT WE VERIFY EACH POSITION THAT'S UP/DOWN/LEFT OR RIGHT
                 COMPARING TO THE REFFERENCE POINT WHICH MAY BE LOCATED IN AN INTERSECTION """
                 
-            if (solve(maze, posx, posy+1, sizex, sizey) or
-                solve(maze, posx, posy-1, sizex, sizey) or
-                solve(maze, posx-1, posy, sizex, sizey) or
-                solve(maze, posx+1, posy, sizex, sizey)) :
-
                 
-                if maze[posy][posx] == SEEN:
-                    maze[posy][posx] = GOOD
-                found = 1
-        elif maze[posy][posx] == FINISH:
-            found = 1
-    return found
+                sub_solver1.join()
+                sub_solver2.join()
+                sub_solver3.join()
+                sub_solver4.join()
+
+                if sub_solver1.found or sub_solver2.found or sub_solver3.found or sub_solver4.found:
+                    if self.maze[self.posy][self.posx] == SEEN:
+                        self.maze[self.posy][self.posx] = GOOD
+                    self.found = 1
+            elif self.maze[self.posy][self.posx] == FINISH:
+                self.found = 1
+                
+        lock.release()
 
 
-""" IF THE WE RETURN AND WE FIND A POINT THAT HAS BEEN ALREADY SEEN,
+""" IF ANOTHER THREAD FINDS A POINT THAT HAS BEEN ALREADY SEEN,
 WE MARK IT AS GOOD, AND OUR VARIABLE found BECOMES TRUE.
 IF WE ARRIVE TO THE FINISH POINT, WE RETURN THE VARIABLE found, WHICH IS TRUE. """
 
 
 def main():
     maze = [list(x) for x in LABYRINTHE.splitlines() if x]
-    solve(maze, 1, 1, len(maze[1]), len(maze))      # x AND y ARE THE COORDINATES OF DEPART, WHICH ARE NEAR THE POINT A
+
+    solver = Solver(maze, 1, 1, len(maze[1]), len(maze))      # x AND y ARE THE COORDINATES OF DEPART, WHICH ARE NEAR THE POINT A
+    solver.start()
+    solver.join()
+                
     for line in maze:
         print "".join(line)
 
